@@ -8,28 +8,25 @@ export default class NotificationMessage {
       this.message = message;
       this.duration = duration;
       this.type = type;
-      this.element = this.createNotification();
+      this.element = this.createTemplate();
       this.show();
     }
 
     createTemplate() {
-      return `<div class="timer"></div>
-                <div class="inner-wrapper">
-                <div class="notification-header"> ${this.type}</div>
-                <div class="notification-body">
-                    ${this.message}
-                </div>
-            </div>`;
-    }
-
-    createNotification() {
       let notificationWrapper = document.createElement('div');
       notificationWrapper.classList.add('notification');
       if (this.type) {
         notificationWrapper.classList.add(this.type);
       }
       notificationWrapper.style.setProperty('--value', `${this.duration}s`);
-      notificationWrapper.innerHTML = this.createTemplate();
+      notificationWrapper.innerHTML =
+        `<div class="timer"></div>
+            <div class="inner-wrapper">
+            <div class="notification-header"> ${this.type}</div>
+            <div class="notification-body">
+                ${this.message}
+            </div>
+        </div>`;
       return notificationWrapper;
     }
 
