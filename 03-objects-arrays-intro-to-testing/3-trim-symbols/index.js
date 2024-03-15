@@ -5,6 +5,12 @@
  * @returns {string} - the new string without extra symbols according passed size
  */
 export function trimSymbols(string, size) {
+  if (size === 0) {
+    return '';
+  }
+  if (!size) {
+    return string;
+  }
   const removeDuplicates = (string, size) => {
     let counter = 1;
     const stringCollection = string.split('');
@@ -21,7 +27,6 @@ export function trimSymbols(string, size) {
       }
     }
     return trimmedArray.join('');
-  }
-
-  return size === 0 ? '' : !size ? string : removeDuplicates(string, size);
-  }
+  };
+  return removeDuplicates(string, size);
+}
