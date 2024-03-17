@@ -1,10 +1,10 @@
 export default class SortableTable {
-  element;
+  element = document.createElement('div');
 
   constructor(headerConfig = [], data = []) {
     this.headerConfig = headerConfig;
     this.data = data;
-    this.element = this.createCommonTemplate();
+    this.element.innerHTML = this.createCommonTemplate();
     this.subElements = this.getSubElements(this.element);
   }
 
@@ -15,27 +15,20 @@ export default class SortableTable {
       const name = subElement.dataset.element;
       result[name] = subElement;
     }
-
     return result;
   }
 
   createCommonTemplate() {
-    const productsContainer = document.createElement('div');
-    productsContainer.setAttribute('data-element', 'productsContainer');
-    productsContainer.classList.add('products-list__container');
-    productsContainer.innerHTML = `
-      <div data-element="productsContainer" class="products-list__container">
-        <div class="sortable-table">
-          <div data-element="header" class="sortable-table__header sortable-table__row">
-            ${this.createCellHeaderTemplate()}
-          </div>
-          <div data-element="body" class="sortable-table__body">
-            ${this.createBodyTemplate(this.data)}
-          </div>
-        </div>
-      </div>
-    `;
-    return productsContainer;
+    return `<div data-element="productsContainer" class="products-list__container">
+            <div class="sortable-table">
+              <div data-element="header" class="sortable-table__header sortable-table__row">
+                ${this.createCellHeaderTemplate()}
+              </div>
+              <div data-element="body" class="sortable-table__body">
+                ${this.createBodyTemplate(this.data)}
+              </div>
+            </div>
+          </div>`;
   }
 
   createCellHeaderTemplate() {
