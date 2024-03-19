@@ -46,7 +46,7 @@ export default class SortableTable {
 
   createBodyTemplate(data) {
     return data.map(rowData =>
-      `<div class="row">
+      `<div class="sortable-table__row">
         ${this.headerConfig.map(config => this.createBodyColumnTemplate(config, rowData)).join('')}
       </div>`
     ).join('');
