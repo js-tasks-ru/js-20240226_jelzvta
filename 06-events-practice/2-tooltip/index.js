@@ -47,12 +47,10 @@ class Tooltip {
     this.element.style.top = `${mouseY + tooltipOffset}px`;
   }
 
-
   createEventListener() {
     document.addEventListener('pointerover', this.handleHeaderPointerOver);
     document.addEventListener('pointerout', this.handleHeaderPointerOut);
   }
-
 
   destroyEventListener() {
     document.removeEventListener('pointerover', this.handleHeaderPointerOver);
