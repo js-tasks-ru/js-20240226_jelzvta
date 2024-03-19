@@ -22,7 +22,7 @@ class Tooltip {
     this.element.innerHTML = text;
   }
 
-  handleHeaderPointerOut = (e) => {
+  handlePointerOut = (e) => {
     const item = e.target.closest('[data-tooltip]');
     if (!item) {
       return;
@@ -30,7 +30,7 @@ class Tooltip {
     this.element.style.visibility = 'hidden';
   }
 
-  handleHeaderPointerOver = (e) => {
+  handlePointerOver = (e) => {
     const item = e.target.closest('[data-tooltip]');
     if (!item) {
       return;
@@ -48,13 +48,13 @@ class Tooltip {
   }
 
   createEventListener() {
-    document.addEventListener('pointerover', this.handleHeaderPointerOver);
-    document.addEventListener('pointerout', this.handleHeaderPointerOut);
+    document.addEventListener('pointerover', this.handlePointerOver);
+    document.addEventListener('pointerout', this.handlePointerOut);
   }
 
   destroyEventListener() {
-    document.removeEventListener('pointerover', this.handleHeaderPointerOver);
-    document.removeEventListener('pointerout', this.handleHeaderPointerOut);
+    document.removeEventListener('pointerover', this.handlePointerOver);
+    document.removeEventListener('pointerout', this.handlePointerOut);
     document.removeEventListener('mousemove', this.handleMouseMove);
   }
 
