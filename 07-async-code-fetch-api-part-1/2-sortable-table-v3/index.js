@@ -13,10 +13,19 @@ export default class SortableTableV3 extends SortableTableV2 {
   }
 
   loadingTemplate() {
-    const loadingElement = document.createElement('div');
-    loadingElement.classList.add('loading-line sortable-table__loading-line');
-    loadingElement.setAttribute('data-element', 'loading');
-    return loadingElement;
+    this.loadingElement = document.createElement('div');
+    this.loadingElement.classList.add('loading-line', 'sortable-table__loading-line');
+    this.loadingElement.dataset.element = 'loading';
+    return this.loadingElement;
+  }
+
+  emptyTemplate() {
+    return `<div data-element="emptyPlaceholder" class="sortable-table__empty-placeholder">
+              <div>
+                <p>No products satisfies your filter criteria</p>
+                <button type="button" class="button-primary-outline">Reset all filters</button>
+              </div>
+            </div>`;
   }
 
   async render() {
@@ -26,6 +35,10 @@ export default class SortableTableV3 extends SortableTableV2 {
 
   async sortOnServer(id, order) {
     const data = await this.loadDataWithSorting(id, order);
+    if (!data) {
+      const { body } = this.subElements;
+      body.innerHTML = this.emptyTemplate();
+    }
     this.update(data);
   }
 
