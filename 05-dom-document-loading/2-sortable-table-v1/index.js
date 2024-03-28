@@ -1,21 +1,18 @@
 export default class SortableTable {
   element = document.createElement('div');
+  subElements = {};
 
   constructor(headerConfig = [], data = []) {
     this.headerConfig = headerConfig;
     this.data = data;
     this.element.innerHTML = this.createCommonTemplate();
-    this.subElements = this.getSubElements(this.element);
+    this.getSubElements();
   }
 
-  getSubElements(element) {
-    const result = {};
-    const elements = element.querySelectorAll('[data-element]');
-    for (const subElement of elements) {
-      const name = subElement.dataset.element;
-      result[name] = subElement;
-    }
-    return result;
+  getSubElements () {
+    this.element.querySelectorAll('[data-element]').forEach((element) => {
+      this.subElements[element.dataset.element] = element;
+    });
   }
 
   createCommonTemplate() {
@@ -25,7 +22,6 @@ export default class SortableTable {
                 ${this.createCellHeaderTemplate()}
               </div>
               <div data-element="body" class="sortable-table__body">
-                ${this.createBodyTemplate(this.data)}
               </div>
             </div>
           </div>`;
@@ -54,7 +50,7 @@ export default class SortableTable {
 
   createBodyColumnTemplate(config, rowData) {
     if (config.template) {
-      return config.template(rowData);
+      return config.template(rowData[config.id]);
     }
     return `<div class="sortable-table__cell">${rowData[config.id]}</div>`;
   }
