@@ -26,7 +26,6 @@ export default class SortableTableV2 extends SortableTable {
 
   handleHeaderPointerDown = (e) => {
     const columnElement = e.target.closest('[data-sortable="true"]');
-
     if (!columnElement) {
       return;
     }
@@ -50,9 +49,7 @@ export default class SortableTableV2 extends SortableTable {
     super.sort(id, order);
   }
 
-  sortOnServer(fieldName, orderName) {
-    console.log(fieldName, orderName);
-  }
+  sortOnServer(fieldName, orderName) {}
 
   destroy() {
     super.destroy();

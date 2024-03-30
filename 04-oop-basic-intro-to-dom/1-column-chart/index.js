@@ -1,6 +1,7 @@
 export default class ColumnChart {
     element;
     chartHeight = 50;
+    subElements = {};
 
     constructor({
       data = [],
@@ -15,16 +16,23 @@ export default class ColumnChart {
       this.link = link;
       this.formatHeading = formatHeading;
       this.element = this.createChart();
+      this.getSubElements();
+    }
+
+    getSubElements () {
+      this.element.querySelectorAll('[data-element]').forEach((element) => {
+        this.subElements[element.dataset.element] = element;
+      });
     }
 
     createChart() {
       const element = document.createElement('div');
-      element.innerHTML = this.createTemplate();
+      element.innerHTML = this.createTemplate(this.data);
       return element.firstElementChild;
     }
 
     createTemplate() {
-      return `<div class="column-chart ${this.data.length === 0 ? `column-chart_loading` : ''}" style="--chart-height: 50">
+      return `<div class="column-chart ${(this.data.length === 0) ? 'column-chart_loading' : ''}" style="--chart-height: 50">
                     <div class="column-chart__title">
                         Total ${this.label}
                         ${this.link ? `<a href="${this.link}" class="column-chart__link">View all</a>` : ''}
@@ -48,7 +56,7 @@ export default class ColumnChart {
     }
 
     update(data) {
-      this.element.querySelector('.column-chart__chart').innerHTML = this.getColumnBody(data);
+      this.subElements.body.innerHTML = this.getColumnBody(data);
     }
 
     remove() {

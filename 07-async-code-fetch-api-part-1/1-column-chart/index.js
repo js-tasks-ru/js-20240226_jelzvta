@@ -14,7 +14,7 @@ export default class ColumnChartV2 extends ColumnChart {
       this.from = range.from;
       this.label = label;
       this.link = link;
-      this.formatHeading = formatHeading;
+      this.formatHeading = data => data;
       this.getSubElements();
     }
 
@@ -29,9 +29,26 @@ export default class ColumnChartV2 extends ColumnChart {
       return ordersData;
     }
 
+    filterDataByRange(data, from, to) {
+      const filteredData = {};
+
+      for (const [date, value] of Object.entries(data)) {
+        const currentDate = new Date(date);
+
+        if (currentDate >= from && currentDate <= to) {
+          filteredData[date] = value;
+        }
+      }
+
+      return filteredData;
+    }
+
     async update(from, to) {
-      this.data = await this.getData();
-      this.subElements.body.innerHTML = this.getColumnBody(Object.values(this.data));
+      const rawData = await this.getData();
+      this.data = rawData;
+      // this.subElements.body.innerHTML = this.getColumnBody(Object.values(this.filterDataByRange(this.data, from, to)));
+      this.subElements.body.innerHTML = this.getColumnBody(Object.values(rawData));
+      document.querySelector('.column-chart').classList.remove('column-chart_loading');
       return this.data;
     }
 
