@@ -60,6 +60,7 @@ export default class SortableTableV3 extends SortableTableV2 {
   }
 
   destroy() {
+    super.destroy();
     window.removeEventListener('scroll', this.handleScroll);
   }
 
