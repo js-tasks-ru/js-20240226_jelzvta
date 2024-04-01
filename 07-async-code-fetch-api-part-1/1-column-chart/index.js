@@ -24,32 +24,17 @@ export default class ColumnChartV2 extends ColumnChart {
       });
     }
 
-    async getData() {
-      const ordersData = await fetchJson(`${BACKEND_URL}/${this.url}`);
+    async getData(from, to) {
+      const ordersData = await fetchJson(`${BACKEND_URL}/${this.url}?from=${from}&to=${to}`);
       return ordersData;
     }
 
-    filterDataByRange(data, from, to) {
-      const filteredData = {};
-
-      for (const [date, value] of Object.entries(data)) {
-        const currentDate = new Date(date);
-
-        if (currentDate >= from && currentDate <= to) {
-          filteredData[date] = value;
-        }
-      }
-
-      return filteredData;
-    }
-
     async update(from, to) {
-      const rawData = await this.getData();
-      this.data = rawData;
-      // this.subElements.body.innerHTML = this.getColumnBody(Object.values(this.filterDataByRange(this.data, from, to)));
-      this.subElements.body.innerHTML = this.getColumnBody(Object.values(rawData));
+      const rawData = await this.getData(from, to);
+      this.data = Object.values(rawData);
+      this.subElements.body.innerHTML = this.getColumnBody(this.data);
       document.querySelector('.column-chart').classList.remove('column-chart_loading');
-      return this.data;
+      return rawData;
     }
 
 }
