@@ -9,7 +9,7 @@ export default class SortableTableV3 extends SortableTableV2 {
   constructor(headerConfig, {url = ''}) {
     super(headerConfig);
     this.url = url;
-    this.render();
+    document.addEventListener('scroll', this.handleScroll());
   }
 
   loadingTemplate() {
@@ -42,11 +42,25 @@ export default class SortableTableV3 extends SortableTableV2 {
     this.update(data);
   }
 
+  handleScroll() {
+    const windowHeight = window.innerHeight;
+    const documentHeight = document.documentElement.scrollHeight;
+    const scrollPosition = window.scrollY;
+
+    if (documentHeight - windowHeight <= scrollPosition + 100) {
+      this.render();
+    }
+  }
+
   async loadDataWithSorting(id, order) {
     const url = new URL(this.url, BACKEND_URL);
     url.searchParams.set('_sort', id);
     url.searchParams.set('_order', order);
     return await fetchJson(url);
+  }
+
+  destroy() {
+    window.removeEventListener('scroll', this.handleScroll);
   }
 
 }
