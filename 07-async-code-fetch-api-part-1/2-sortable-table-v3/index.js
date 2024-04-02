@@ -32,7 +32,7 @@ export default class SortableTableV3 extends SortableTableV2 {
   emptyTemplate() {
     return `<div data-element="emptyPlaceholder" class="sortable-table__empty-placeholder">
               <div>
-                <p>No products satisfy your filter criteria</p>
+                <p>No products satisfies your filter criteria</p>
                 <button type="button" class="button-primary-outline">Reset all filters</button>
               </div>
             </div>`;
