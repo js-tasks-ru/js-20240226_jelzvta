@@ -6,10 +6,20 @@ import SortableTableV2 from '../../06-events-practice/1-sortable-table-v2/index.
 
 export default class SortableTableV3 extends SortableTableV2 {
 
-  constructor(headerConfig, {url = ''}) {
+  constructor(headerConfig, {url = '', pageSize = 20}) {
     super(headerConfig);
     this.url = url;
-    document.addEventListener('scroll', this.handleScroll());
+    this.pageSize = pageSize;
+    this.currentPage = 1;
+    this.startItem = 0;
+    this.endItem = this.startItem + this.pageSize;
+    this.isLoading = false;
+    this.render();
+    this.addListeners();
+  }
+
+  addListeners() {
+    document.addEventListener('scroll', this.handleScroll);
   }
 
   loadingTemplate() {
@@ -22,15 +32,24 @@ export default class SortableTableV3 extends SortableTableV2 {
   emptyTemplate() {
     return `<div data-element="emptyPlaceholder" class="sortable-table__empty-placeholder">
               <div>
-                <p>No products satisfies your filter criteria</p>
+                <p>No products satisfy your filter criteria</p>
                 <button type="button" class="button-primary-outline">Reset all filters</button>
               </div>
             </div>`;
   }
 
   async render() {
-    const data = await fetchJson(`${BACKEND_URL}/${this.url}`);
-    this.update(data);
+    this.isLoading = true;
+    const data = await fetchJson(`${BACKEND_URL}/${this.url}?_start=${this.startItem}&_end=${this.endItem}`);
+    this.updateTable(data);
+    this.isLoading = false;
+    if (data.length < this.pageSize) {
+      this.destroyScrollListener();
+    }
+  }
+
+  updateTable(data) {
+    this.subElements.body.innerHTML += this.createBodyTemplate(data);
   }
 
   async sortOnServer(id, order) {
@@ -38,17 +57,20 @@ export default class SortableTableV3 extends SortableTableV2 {
     if (!data) {
       const { body } = this.subElements;
       body.innerHTML = this.emptyTemplate();
+    } else {
+      this.updateTable(data);
     }
-    this.update(data);
   }
 
-  handleScroll() {
-    const windowHeight = window.innerHeight;
-    const documentHeight = document.documentElement.scrollHeight;
-    const scrollPosition = window.scrollY;
+  handleScroll = async () => {
+    const distanceToBottom = document.documentElement.scrollHeight - (window.innerHeight + window.scrollY);
+    const minDistanceToLoad = 200;
 
-    if (documentHeight - windowHeight <= scrollPosition + 100) {
-      this.render();
+    if (distanceToBottom <= minDistanceToLoad && !this.isLoading) {
+      this.currentPage++;
+      this.startItem += this.pageSize;
+      this.endItem = this.startItem + this.pageSize;
+      await this.render();
     }
   }
 
@@ -61,7 +83,11 @@ export default class SortableTableV3 extends SortableTableV2 {
 
   destroy() {
     super.destroy();
-    window.removeEventListener('scroll', this.handleScroll);
+    this.destroyScrollListener();
+  }
+
+  destroyScrollListener() {
+    document.removeEventListener('scroll', this.handleScroll);
   }
 
 }
