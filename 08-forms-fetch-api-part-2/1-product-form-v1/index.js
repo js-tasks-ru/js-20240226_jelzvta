@@ -12,6 +12,7 @@ export default class ProductForm {
     this.productId = productId;
     this.element.classList.add('product-form');
     this.getSubElements();
+    this.render();
   }
 
   getSubElements() {
@@ -142,5 +143,9 @@ export default class ProductForm {
 
   destroy() {
     this.remove();
+  }
+
+  save() {
+
   }
 }
