@@ -11,9 +11,9 @@ export default class ProductForm {
   constructor (productId = '') {
     this.productId = productId;
     this.element.classList.add('product-form');
-    this.render();
     this.getSubElements();
   }
+
   getSubElements() {
     this.element.querySelectorAll('[data-element]').forEach((element) => {
       this.subElements[element.dataset.element] = element;
@@ -118,8 +118,8 @@ export default class ProductForm {
         </fieldset>
       </div>
       <div class="form-group form-group__part-half">
-        <label value="${quantity}" class="form-label">Количество</label>
-        <input required="" type="number" class="form-control" name="quantity" placeholder="1">
+        <label class="form-label">Количество</label>
+        <input value="${quantity}" required="" type="number" class="form-control" name="quantity" placeholder="1">
       </div>
       <div class="form-group form-group__part-half">
         <label class="form-label">Статус</label>
