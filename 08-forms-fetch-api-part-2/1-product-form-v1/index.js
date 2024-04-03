@@ -5,12 +5,12 @@ const IMGUR_CLIENT_ID = '28aaa2e823b03b1';
 const BACKEND_URL = 'https://course-js.javascript.ru';
 
 export default class ProductForm {
-  element = document.createElement('div');
   subElements = {};
   product;
   subcategories;
   constructor (productId = '') {
     this.productId = productId;
+    this.element = document.createElement('div');
     this.element.classList.add('product-form');
     this.getSubElements();
     this.render();
@@ -24,17 +24,21 @@ export default class ProductForm {
 
   async fetchProductData() {
     if (this.productId) {
-      const data = await fetchJson(`${BACKEND_URL}/api/rest/products?id=${this.productId}`);
-      if (data && data.length > 0) {
-        this.product = data[0];
+      const productData = await fetchJson(`${BACKEND_URL}/api/rest/products?id=${this.productId}`);
+      if (productData && productData.length > 0) {
+        this.product = productData[0];
       }
     }
+  }
+
+  async fetchCategoryData() {
     const categoriesData = await fetchJson(`${BACKEND_URL}/api/rest/categories?_refs=subcategory`);
     this.subcategories = categoriesData;
   }
 
   async render() {
     await this.fetchProductData();
+    await this.fetchCategoryData();
     const formTemplate = this.createFormTemplate(this.product, this.subcategories);
     this.element.innerHTML = formTemplate;
     return this.element;
@@ -47,6 +51,11 @@ export default class ProductForm {
       subcategories.forEach(({title: subTitle, id}) => {subCategoriesOptions += `<option value="${id}">${mainTitle} > ${subTitle}</option>`;});
     });
     return subCategoriesOptions;
+  }
+
+  getStatusOptions(status) {
+    return `<option value="${status === 1 ? 1 : 0}">Активен</option>
+    <option value="${status === 1 ? 1 : 0}">Неактивен</option>`;
   }
 
   createFormTemplate(product, subcategories) {
@@ -106,8 +115,7 @@ export default class ProductForm {
       <div class="form-group form-group__part-half">
         <label class="form-label">Статус</label>
         <select class="form-control" name="status">
-          <option value="1">Активен</option>
-          <option value="0">Неактивен</option>
+          ${this.getStatusOptions(status)}
         </select>
       </div>
       <div class="form-buttons">
