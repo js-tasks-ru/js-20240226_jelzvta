@@ -3,6 +3,8 @@ export default class RangePicker {
     constructor({from, to} = {}) {
       this.from = from;
       this.to = to;
+      this.currentMonth = this.from.getMonth();
+      this.currentYear = this.from.getFullYear();
       this.element = this.render();
       this.isOpen = false;
     }
@@ -40,10 +42,55 @@ export default class RangePicker {
     initEventListeners() {
       // open/close calendar
       this.subElements.input.addEventListener('click', this.onInputClick);
-      // outside click
+      // outside close calendar
       document.addEventListener('click', this.onOutsideClick, true);
-      // staff with dates in calendar
+      // arrows
+      this.subElements.selector.addEventListener('click', (e) => {
+        if (e.target.classList.contains('rangepicker__selector-control-left')) {
+          this.goToPreviousMonth();
+        } else if (e.target.classList.contains('rangepicker__selector-control-right')) {
+          this.goToNextMonth();
+        }
+      });
+    }
 
+    goToPreviousMonth() {
+      if (this.currentMonth === 0) {
+        this.currentMonth = 11;
+        this.currentYear--;
+      } else {
+        this.currentMonth--;
+      }
+      this.updateSelector();
+    }
+
+    goToNextMonth() {
+      if (this.currentMonth === 11) {
+        this.currentMonth = 0;
+        this.currentYear++;
+      } else {
+        this.currentMonth++;
+      }
+      this.updateSelector();
+    }
+
+    updateSelector() {
+      this.subElements.selector.innerHTML = this.rangePickerTemplate();
+      this.addCalendarEventListeners();
+
+      this.updateInput();
+    }
+
+    updateInput() {
+      if (this.to === null) {
+        return;
+      }
+
+      const fromText = this.from.toLocaleDateString('ru-RU');
+      const toText = this.to.toLocaleDateString('ru-RU');
+
+      this.subElements.from.textContent = fromText;
+      this.subElements.to.textContent = toText;
     }
 
     addCalendarEventListeners() {
@@ -55,21 +102,23 @@ export default class RangePicker {
 
     onCalendarDateClick = (e) => {
       const clickedDate = new Date(e.currentTarget.dataset.value);
-      console.log(clickedDate);
-      if (clickedDate < this.from || clickedDate > this.to) {
+
+      if (this.to !== null) {
         this.from = clickedDate;
         this.to = null;
         this.updateSelector();
-      }
-      else {
-        this.from = clickedDate;
-        this.to = null;
-      }
-    };
+      } else {
+        this.to = clickedDate;
 
-    updateSelector() {
-      this.subElements.selector.innerHTML = this.rangePickerTemplate();
-    }
+        if (this.from > this.to) {
+          [this.from, this.to] = [this.to, this.from];
+        }
+
+        this.updateSelector();
+      }
+
+      this.updateInput();
+    };
 
     openSelector() {
       this.subElements.rangepicker.classList.add('rangepicker_open');
@@ -101,8 +150,10 @@ export default class RangePicker {
     };
 
     rangePickerTemplate() {
-      const fromDate = this.from.toISOString().split('T')[0];
-      const toDate = this.to.toISOString().split('T')[0];
+      const fromDate = this.from ? this.from.toISOString().split('T')[0] : '';
+      const toDate = this.to ? (this.to).toISOString().split('T')[0] : '';
+
+      console.log(fromDate, toDate)
 
       return ` <div class="rangepicker__selector-arrow"></div>
           <div class="rangepicker__selector-control-left"></div>
@@ -110,62 +161,36 @@ export default class RangePicker {
           ${this.generateDateButtons(fromDate, toDate)}`;
     }
 
-    generateDateButtons (fromDate, toDate) {
-      const buttons = [];
-
-      const startDate = new Date(fromDate);
-      const endDate = new Date(toDate);
-
-      const startYear = startDate.getFullYear();
-      const endYear = endDate.getFullYear();
-      const startMonth = startDate.getMonth() + 1;
-      const endMonth = endDate.getMonth() + 1;
-
-      console.log(startYear, endYear, startMonth, endMonth);
+    generateDateButtons(fromDate, toDate) {
+      const startDate = new Date(this.currentYear, this.currentMonth);
+      const nextMonthDate = new Date(this.currentYear, this.currentMonth + 1);
 
       let calendarHTML = '';
-      for (let year = startYear; year <= endYear; year++) {
-        for (let month = (year === startYear ? startMonth : 1); month <= (year === endYear ? endMonth : 12); month++) {
-          console.log(new Date(year, month - 1).toLocaleDateString('ru-RU', {month: 'long'}));
-          calendarHTML += `<div class="rangepicker__calendar">
-                            <div class="rangepicker__month-indicator">
-                              <time datetime="${(new Date(year, month - 1).toLocaleDateString('en', {month: 'long'}))}">${(new Date(year, month - 1).toLocaleDateString('ru-Ru', {month: 'long'}))}</time>
-                            </div>
-                            <div class="rangepicker__day-of-week">
-                              <div>Пн</div>
-                              <div>Вт</div>
-                              <div>Ср</div>
-                              <div>Чт</div>
-                              <div>Пт</div>
-                              <div>Сб</div>
-                              <div>Вс</div>
-                            </div>
-                            <div class="rangepicker__date-grid">
-                              ${this.generateMonthMarkup(year, month, startDate, endDate)}
-                            </div>
-                          </div>`;}
-      }
+
+      calendarHTML += this.generateMonthMarkup(startDate, fromDate, toDate);
+      calendarHTML += this.generateMonthMarkup(nextMonthDate, fromDate, toDate);
 
       return calendarHTML;
     }
 
-    generateMonthMarkup (year, month, fromDate, toDate) {
-      const buttons = [];
-
-      const formattedFromDate = fromDate.toISOString().split('T')[0];
-      const formattedToDate = toDate.toISOString().split('T')[0];
-
+    generateMonthMarkup(date, fromDate, toDate) {
+      const year = date.getFullYear();
+      const month = date.getMonth() + 1;
       const firstDayOfMonth = new Date(year, month - 1, 1);
       const lastDayOfMonth = new Date(year, month, 0);
+
+      console.log(firstDayOfMonth, lastDayOfMonth)
+
+      let buttons = [];
 
       for (let d = new Date(firstDayOfMonth); d <= lastDayOfMonth; d.setDate(d.getDate() + 1)) {
         const dateISO = d.toISOString().split('T')[0];
 
-        const isStart = dateISO === formattedFromDate;
-        const isEnd = dateISO === formattedToDate;
-        const isBetween = dateISO > formattedFromDate && dateISO < formattedToDate;
-
         let cellClass = 'rangepicker__cell';
+        const isStart = fromDate && dateISO === fromDate;
+        const isEnd = toDate && dateISO === toDate;
+        const isBetween = fromDate && toDate && dateISO > fromDate && dateISO < toDate;
+
         if (isStart) {
           cellClass += ' rangepicker__selected-from';
         } else if (isEnd) {
@@ -177,7 +202,23 @@ export default class RangePicker {
         buttons.push(`<button type="button" class="${cellClass}" data-value="${dateISO}">${d.getDate()}</button>`);
       }
 
-      return buttons.join('');
+      return `<div class="rangepicker__calendar">
+                <div class="rangepicker__month-indicator">
+                  <time datetime="${year}-${month}-01">${Intl.DateTimeFormat('ru', { month: 'long' }).format(new Date(year, month - 1, 1))}</time>
+                </div>
+                <div class="rangepicker__day-of-week">
+                  <div>Пн</div>
+                  <div>Вт</div>
+                  <div>Ср</div>
+                  <div>Чт</div>
+                  <div>Пт</div>
+                  <div>Сб</div>
+                  <div>Вс</div>
+                </div>
+                <div class="rangepicker__date-grid">
+                  ${buttons.join('')}
+                </div>
+              </div>`;
     }
 
     remove() {
