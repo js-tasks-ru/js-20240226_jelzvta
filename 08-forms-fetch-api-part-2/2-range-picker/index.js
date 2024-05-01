@@ -150,10 +150,8 @@ export default class RangePicker {
     };
 
     rangePickerTemplate() {
-      const fromDate = this.from ? this.from.toISOString().split('T')[0] : '';
-      const toDate = this.to ? (this.to).toISOString().split('T')[0] : '';
-
-      console.log(fromDate, toDate)
+      const fromDate = this.from ? this.from.toLocaleDateString('en-CA') : '';
+      const toDate = this.to ? (this.to).toLocaleDateString('en-CA') : '';
 
       return ` <div class="rangepicker__selector-arrow"></div>
           <div class="rangepicker__selector-control-left"></div>
@@ -179,12 +177,10 @@ export default class RangePicker {
       const firstDayOfMonth = new Date(year, month - 1, 1);
       const lastDayOfMonth = new Date(year, month, 0);
 
-      console.log(firstDayOfMonth, lastDayOfMonth)
-
       let buttons = [];
 
       for (let d = new Date(firstDayOfMonth); d <= lastDayOfMonth; d.setDate(d.getDate() + 1)) {
-        const dateISO = d.toISOString().split('T')[0];
+        const dateISO = d.toLocaleDateString('en-CA');
 
         let cellClass = 'rangepicker__cell';
         const isStart = fromDate && dateISO === fromDate;
