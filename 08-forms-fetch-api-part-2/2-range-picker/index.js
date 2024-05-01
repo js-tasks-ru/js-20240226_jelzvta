@@ -4,6 +4,7 @@ export default class RangePicker {
       this.from = from;
       this.to = to;
       this.element = this.render();
+      this.isOpen = false;
     }
 
     getSubElements(element) {
@@ -28,7 +29,7 @@ export default class RangePicker {
                 <span data-element="from">${this.getDateString(this.from)}</span> -
                 <span data-element="to">${this.getDateString(this.to)}</span>
             </div>
-            <div style="hidden" class="rangepicker__selector" data-element="selector">${(isOpen) ? this.rangePickerTemplate() : ''}</div>
+            <div class="rangepicker__selector" data-element="selector" style="display: none;"></div>
         </div>
       `;
       this.subElements = this.getSubElements(wrapper);
@@ -37,179 +38,147 @@ export default class RangePicker {
     }
 
     initEventListeners() {
+      // open/close calendar
       this.subElements.input.addEventListener('click', this.onInputClick);
+      // outside click
+      document.addEventListener('click', this.onOutsideClick, true);
+      // staff with dates in calendar
+
     }
 
-    onInputClick = () => {
-      if (!(this.subElements.rangepicker.classList).contains('rangepicker_open')) {
-        this.subElements.rangepicker.classList.add('rangepicker_open');
-        this.subElements.selector.innerHTML = this.rangePickerTemplate();
-        this.subElements.selector.style.display = 'block';
-      } else {
-        this.subElements.rangepicker.classList.remove('rangepicker_open');
-        this.subElements.selector.style.display = 'none';
-      }
+    addCalendarEventListeners() {
+      const buttons = this.subElements.selector.querySelectorAll('.rangepicker__cell');
+      buttons.forEach((button) => {
+        button.addEventListener('click', this.onCalendarDateClick);
+      });
     }
+
+    onCalendarDateClick = (e) => {
+      const clickedDate = new Date(e.currentTarget.dataset.value);
+      console.log(clickedDate);
+      if (clickedDate < this.from || clickedDate > this.to) {
+        this.from = clickedDate;
+        this.to = null;
+        this.updateSelector();
+      }
+      else {
+        this.from = clickedDate;
+        this.to = null;
+      }
+    };
+
+    updateSelector() {
+      this.subElements.selector.innerHTML = this.rangePickerTemplate();
+    }
+
+    openSelector() {
+      this.subElements.rangepicker.classList.add('rangepicker_open');
+      this.subElements.selector.style.display = 'block';
+      this.subElements.selector.innerHTML = `${this.rangePickerTemplate()}`;
+      this.isOpen = true;
+      this.addCalendarEventListeners();
+    }
+
+    closeSelector() {
+      this.subElements.rangepicker.classList.remove('rangepicker_open');
+      this.subElements.selector.style.display = 'none';
+      this.isOpen = false;
+    }
+
+    onInputClick = (e) => {
+      e.stopPropagation();
+      if (this.isOpen) {
+        this.closeSelector();
+      } else {
+        this.openSelector();
+      }
+    };
+
+    onOutsideClick = (e) => {
+      if (!this.element.contains(e.target)) {
+        this.closeSelector();
+      }
+    };
 
     rangePickerTemplate() {
-      return `<div class="rangepicker__selector-arrow"></div>
-                <div class="rangepicker__selector-control-left"></div>
-                <div class="rangepicker__selector-control-right"></div>
-                <div class="rangepicker__calendar">
-                <div class="rangepicker__month-indicator">
-                    <time datetime="November">November</time>
-                </div>
-                <div class="rangepicker__day-of-week">
-                    <div>Пн</div>
-                    <div>Вт</div>
-                    <div>Ср</div>
-                    <div>Чт</div>
-                    <div>Пт</div>
-                    <div>Сб</div>
-                    <div>Вс</div>
-                </div>
-                <div class="rangepicker__date-grid">
-                    <button type="button" class="rangepicker__cell" data-value="2019-11-01T17:53:50.338Z" style="--start-from: 5">1</button>
-                    <button type="button" class="rangepicker__cell" data-value="2019-11-02T17:53:50.338Z">2</button>
-                    <button type="button" class="rangepicker__cell" data-value="2019-11-03T17:53:50.338Z">3</button>
-                    <button type="button" class="rangepicker__cell" data-value="2019-11-04T17:53:50.338Z">4</button>
-                    <button type="button" class="rangepicker__cell" data-value="2019-11-05T17:53:50.338Z">5</button>
-                    <button type="button" class="rangepicker__cell" data-value="2019-11-06T17:53:50.338Z">6</button>
-                    <button type="button" class="rangepicker__cell" data-value="2019-11-07T17:53:50.338Z">7</button>
-                    <button type="button" class="rangepicker__cell" data-value="2019-11-08T17:53:50.338Z">8</button>
-                    <button type="button" class="rangepicker__cell" data-value="2019-11-09T17:53:50.338Z">9</button>
-                    <button type="button" class="rangepicker__cell" data-value="2019-11-10T17:53:50.338Z">10</button>
-                    <button type="button" class="rangepicker__cell" data-value="2019-11-11T17:53:50.338Z">11</button>
-                    <button type="button" class="rangepicker__cell" data-value="2019-11-12T17:53:50.338Z">12</button>
-                    <button type="button" class="rangepicker__cell" data-value="2019-11-13T17:53:50.338Z">13</button>
-                    <button type="button" class="rangepicker__cell" data-value="2019-11-14T17:53:50.338Z">14</button>
-                    <button type="button" class="rangepicker__cell" data-value="2019-11-15T17:53:50.338Z">15</button>
-                    <button type="button" class="rangepicker__cell" data-value="2019-11-16T17:53:50.338Z">16</button>
-                    <button type="button" class="rangepicker__cell" data-value="2019-11-17T17:53:50.338Z">17</button>
-                    <button type="button" class="rangepicker__cell" data-value="2019-11-18T17:53:50.338Z">18</button>
-                    <button type="button" class="rangepicker__cell" data-value="2019-11-19T17:53:50.338Z">19</button>
-                    <button type="button" class="rangepicker__cell" data-value="2019-11-20T17:53:50.338Z">20</button>
-                    <button type="button" class="rangepicker__cell" data-value="2019-11-21T17:53:50.338Z">21</button>
-                    <button type="button" class="rangepicker__cell" data-value="2019-11-22T17:53:50.338Z">22</button>
-                    <button type="button" class="rangepicker__cell" data-value="2019-11-23T17:53:50.338Z">23</button>
-                    <button type="button" class="rangepicker__cell" data-value="2019-11-24T17:53:50.338Z">24</button>
-                    <button type="button" class="rangepicker__cell" data-value="2019-11-25T17:53:50.338Z">25</button>
-                    <button type="button" class="rangepicker__cell rangepicker__selected-from"
-                            data-value="2019-11-26T17:53:50.338Z">26
-                    </button>
-                    <button type="button" class="rangepicker__cell rangepicker__selected-between"
-                            data-value="2019-11-27T17:53:50.338Z">27
-                    </button>
-                    <button type="button" class="rangepicker__cell rangepicker__selected-between"
-                            data-value="2019-11-28T17:53:50.338Z">28
-                    </button>
-                    <button type="button" class="rangepicker__cell rangepicker__selected-between"
-                            data-value="2019-11-29T17:53:50.338Z">29
-                    </button>
-                    <button type="button" class="rangepicker__cell rangepicker__selected-between"
-                            data-value="2019-11-30T17:53:50.338Z">30
-                    </button>
-                </div>
-                </div>
-                <div class="rangepicker__calendar">
-                <div class="rangepicker__month-indicator">
-                    <time datetime="December">December</time>
-                </div>
-                <div class="rangepicker__day-of-week">
-                    <div>Пн</div>
-                    <div>Вт</div>
-                    <div>Ср</div>
-                    <div>Чт</div>
-                    <div>Пт</div>
-                    <div>Сб</div>
-                    <div>Вс</div>
-                </div>
-                <div class="rangepicker__date-grid">
-                    <button type="button" class="rangepicker__cell rangepicker__selected-between"
-                            data-value="2019-12-01T17:53:50.338Z" style="--start-from: 7">1
-                    </button>
-                    <button type="button" class="rangepicker__cell rangepicker__selected-between"
-                            data-value="2019-12-02T17:53:50.338Z">2
-                    </button>
-                    <button type="button" class="rangepicker__cell rangepicker__selected-between"
-                            data-value="2019-12-03T17:53:50.338Z">3
-                    </button>
-                    <button type="button" class="rangepicker__cell rangepicker__selected-between"
-                            data-value="2019-12-04T17:53:50.338Z">4
-                    </button>
-                    <button type="button" class="rangepicker__cell rangepicker__selected-between"
-                            data-value="2019-12-05T17:53:50.338Z">5
-                    </button>
-                    <button type="button" class="rangepicker__cell rangepicker__selected-between"
-                            data-value="2019-12-06T17:53:50.338Z">6
-                    </button>
-                    <button type="button" class="rangepicker__cell rangepicker__selected-between"
-                            data-value="2019-12-07T17:53:50.338Z">7
-                    </button>
-                    <button type="button" class="rangepicker__cell rangepicker__selected-between"
-                            data-value="2019-12-08T17:53:50.338Z">8
-                    </button>
-                    <button type="button" class="rangepicker__cell rangepicker__selected-between"
-                            data-value="2019-12-09T17:53:50.338Z">9
-                    </button>
-                    <button type="button" class="rangepicker__cell rangepicker__selected-between"
-                            data-value="2019-12-10T17:53:50.338Z">10
-                    </button>
-                    <button type="button" class="rangepicker__cell rangepicker__selected-between"
-                            data-value="2019-12-11T17:53:50.338Z">11
-                    </button>
-                    <button type="button" class="rangepicker__cell rangepicker__selected-between"
-                            data-value="2019-12-12T17:53:50.338Z">12
-                    </button>
-                    <button type="button" class="rangepicker__cell rangepicker__selected-between"
-                            data-value="2019-12-13T17:53:50.338Z">13
-                    </button>
-                    <button type="button" class="rangepicker__cell rangepicker__selected-between"
-                            data-value="2019-12-14T17:53:50.338Z">14
-                    </button>
-                    <button type="button" class="rangepicker__cell rangepicker__selected-between"
-                            data-value="2019-12-15T17:53:50.338Z">15
-                    </button>
-                    <button type="button" class="rangepicker__cell rangepicker__selected-between"
-                            data-value="2019-12-16T17:53:50.338Z">16
-                    </button>
-                    <button type="button" class="rangepicker__cell rangepicker__selected-between"
-                            data-value="2019-12-17T17:53:50.338Z">17
-                    </button>
-                    <button type="button" class="rangepicker__cell rangepicker__selected-between"
-                            data-value="2019-12-18T17:53:50.338Z">18
-                    </button>
-                    <button type="button" class="rangepicker__cell rangepicker__selected-between"
-                            data-value="2019-12-19T17:53:50.338Z">19
-                    </button>
-                    <button type="button" class="rangepicker__cell rangepicker__selected-between"
-                            data-value="2019-12-20T17:53:50.338Z">20
-                    </button>
-                    <button type="button" class="rangepicker__cell rangepicker__selected-between"
-                            data-value="2019-12-21T17:53:50.338Z">21
-                    </button>
-                    <button type="button" class="rangepicker__cell rangepicker__selected-between"
-                            data-value="2019-12-22T17:53:50.338Z">22
-                    </button>
-                    <button type="button" class="rangepicker__cell rangepicker__selected-between"
-                            data-value="2019-12-23T17:53:50.338Z">23
-                    </button>
-                    <button type="button" class="rangepicker__cell rangepicker__selected-between"
-                            data-value="2019-12-24T17:53:50.338Z">24
-                    </button>
-                    <button type="button" class="rangepicker__cell rangepicker__selected-between"
-                            data-value="2019-12-25T17:53:50.338Z">25
-                    </button>
-                    <button type="button" class="rangepicker__cell rangepicker__selected-to" data-value="2019-12-26T17:53:50.338Z">
-                    26
-                    </button>
-                    <button type="button" class="rangepicker__cell" data-value="2019-12-27T17:53:50.338Z">27</button>
-                    <button type="button" class="rangepicker__cell" data-value="2019-12-28T17:53:50.338Z">28</button>
-                    <button type="button" class="rangepicker__cell" data-value="2019-12-29T17:53:50.338Z">29</button>
-                    <button type="button" class="rangepicker__cell" data-value="2019-12-30T17:53:50.338Z">30</button>
-                    <button type="button" class="rangepicker__cell" data-value="2019-12-31T17:53:50.338Z">31</button>
-                </div>
-                </div>`;}
+      const fromDate = this.from.toISOString().split('T')[0];
+      const toDate = this.to.toISOString().split('T')[0];
+
+      return ` <div class="rangepicker__selector-arrow"></div>
+          <div class="rangepicker__selector-control-left"></div>
+          <div class="rangepicker__selector-control-right"></div>
+          ${this.generateDateButtons(fromDate, toDate)}`;
+    }
+
+    generateDateButtons (fromDate, toDate) {
+      const buttons = [];
+
+      const startDate = new Date(fromDate);
+      const endDate = new Date(toDate);
+
+      const startYear = startDate.getFullYear();
+      const endYear = endDate.getFullYear();
+      const startMonth = startDate.getMonth() + 1;
+      const endMonth = endDate.getMonth() + 1;
+
+      console.log(startYear, endYear, startMonth, endMonth);
+
+      let calendarHTML = '';
+      for (let year = startYear; year <= endYear; year++) {
+        for (let month = (year === startYear ? startMonth : 1); month <= (year === endYear ? endMonth : 12); month++) {
+          console.log(new Date(year, month - 1).toLocaleDateString('ru-RU', {month: 'long'}));
+          calendarHTML += `<div class="rangepicker__calendar">
+                            <div class="rangepicker__month-indicator">
+                              <time datetime="${(new Date(year, month - 1).toLocaleDateString('en', {month: 'long'}))}">${(new Date(year, month - 1).toLocaleDateString('ru-Ru', {month: 'long'}))}</time>
+                            </div>
+                            <div class="rangepicker__day-of-week">
+                              <div>Пн</div>
+                              <div>Вт</div>
+                              <div>Ср</div>
+                              <div>Чт</div>
+                              <div>Пт</div>
+                              <div>Сб</div>
+                              <div>Вс</div>
+                            </div>
+                            <div class="rangepicker__date-grid">
+                              ${this.generateMonthMarkup(year, month, startDate, endDate)}
+                            </div>
+                          </div>`;}
+      }
+
+      return calendarHTML;
+    }
+
+    generateMonthMarkup (year, month, fromDate, toDate) {
+      const buttons = [];
+
+      const formattedFromDate = fromDate.toISOString().split('T')[0];
+      const formattedToDate = toDate.toISOString().split('T')[0];
+
+      const firstDayOfMonth = new Date(year, month - 1, 1);
+      const lastDayOfMonth = new Date(year, month, 0);
+
+      for (let d = new Date(firstDayOfMonth); d <= lastDayOfMonth; d.setDate(d.getDate() + 1)) {
+        const dateISO = d.toISOString().split('T')[0];
+
+        const isStart = dateISO === formattedFromDate;
+        const isEnd = dateISO === formattedToDate;
+        const isBetween = dateISO > formattedFromDate && dateISO < formattedToDate;
+
+        let cellClass = 'rangepicker__cell';
+        if (isStart) {
+          cellClass += ' rangepicker__selected-from';
+        } else if (isEnd) {
+          cellClass += ' rangepicker__selected-to';
+        } else if (isBetween) {
+          cellClass += ' rangepicker__selected-between';
+        }
+
+        buttons.push(`<button type="button" class="${cellClass}" data-value="${dateISO}">${d.getDate()}</button>`);
+      }
+
+      return buttons.join('');
+    }
 
     remove() {
       if (this.element) {
