@@ -11,10 +11,11 @@ export default class RangePicker {
 
     getSubElements(element) {
       const elements = element.querySelectorAll('[data-element]');
-      return [...elements].reduce((acc, subElement) => {
-        acc[subElement.dataset.element] = subElement;
-        return acc;
-      }, {});
+      const subElements = {};
+      elements.forEach((element) => {
+        subElements[element.dataset.element] = element;
+      });
+      return subElements;
     }
 
     getDateString(date) {
@@ -44,14 +45,19 @@ export default class RangePicker {
       this.subElements.input.addEventListener('click', this.onInputClick);
       // outside close calendar
       document.addEventListener('click', this.onOutsideClick, true);
-      // arrows
-      this.subElements.selector.addEventListener('click', (e) => {
-        if (e.target.classList.contains('rangepicker__selector-control-left')) {
-          this.goToPreviousMonth();
-        } else if (e.target.classList.contains('rangepicker__selector-control-right')) {
-          this.goToNextMonth();
-        }
-      });
+    }
+
+    handleArrowsClick = (e) => {
+      this.activeThumb = e.target.closest('[data-arrow]').dataset.arrow;
+      if (!this.activeThumb) {
+        return;
+      }
+      if (this.activeThumb === 'rightClick') {
+        this.goToNextMonth();
+      }
+      if (this.activeThumb === 'leftClick') {
+        this.goToPreviousMonth();
+      }
     }
 
     goToPreviousMonth() {
@@ -98,6 +104,9 @@ export default class RangePicker {
       buttons.forEach((button) => {
         button.addEventListener('click', this.onCalendarDateClick);
       });
+      // arrows
+      const arrows = this.subElements.selector.querySelectorAll('.rangepicker__selector-control-left, .rangepicker__selector-control-right');
+      arrows.forEach((arrow) => { arrow.addEventListener('click', this.handleArrowsClick); });
     }
 
     onCalendarDateClick = (e) => {
@@ -126,6 +135,7 @@ export default class RangePicker {
       this.subElements.selector.innerHTML = `${this.rangePickerTemplate()}`;
       this.isOpen = true;
       this.addCalendarEventListeners();
+
     }
 
     closeSelector() {
@@ -154,8 +164,8 @@ export default class RangePicker {
       const toDate = this.to ? (this.to).toLocaleDateString('en-CA') : '';
 
       return ` <div class="rangepicker__selector-arrow"></div>
-          <div class="rangepicker__selector-control-left"></div>
-          <div class="rangepicker__selector-control-right"></div>
+          <div class="rangepicker__selector-control-left" data-arrow="leftClick"></div>
+          <div class="rangepicker__selector-control-right" data-arrow="rightClick"></div>
           ${this.generateDateButtons(fromDate, toDate)}`;
     }
 
