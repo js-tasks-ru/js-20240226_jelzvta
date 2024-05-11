@@ -181,7 +181,7 @@ export default class ProductForm {
       </div>
       <div class="form-group form-group__wide" >
         <label class="form-label">Фото</label>
-        <div id="imageListContainer"></div>
+        <ul id="imageListContainer" class="sortable-list"></ul>
         <button type="button" name="uploadImage" class="button-primary-outline" id="uploadImage"><span>Загрузить</span></button>
       </div>
       <div class="form-group form-group__half_left">
@@ -237,9 +237,7 @@ export default class ProductForm {
 
   getImagesTemplate(data) {
     return `
-        <ul class="sortable-list" id="images">
-            ${data.map(image => this.getImageTemplate(image)).join('')}
-        </ul>
+        ${data.map(image => this.getImageTemplate(image)).join('')}
     `;
   }
 
