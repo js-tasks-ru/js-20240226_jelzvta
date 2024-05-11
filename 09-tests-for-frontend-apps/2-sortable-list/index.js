@@ -2,11 +2,12 @@ export default class SortableList {
     element;
     constructor({
       data = [],
-      items = data => data
+      items = data => data,
     } = {}) {
       this.data = data;
       this.items = items;
       this.render();
+      this.initEventListeners();
     }
 
     render() {
@@ -16,7 +17,6 @@ export default class SortableList {
         item.classList.add('sortable-list__item');
         this.element.append(item);
       });
-      this.initEventListeners();
     }
 
     initEventListeners() {
@@ -52,7 +52,7 @@ export default class SortableList {
 
     createPlaceholder() {
       this.placeholderElement = document.createElement('li');
-      this.placeholderElement.className = 'sortable-list__placeholder';
+      this.placeholderElement.classList.add('sortable-list__item', 'sortable-list__placeholder');
       this.placeholderElement.style.width = `${this.draggingElement.offsetWidth}px`;
       this.placeholderElement.style.height = `${this.draggingElement.offsetHeight}px`;
     }
